@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='orderitem',
-            name='product_name',
+            name='name',
         ),
     ]

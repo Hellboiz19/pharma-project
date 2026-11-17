@@ -173,7 +173,7 @@ function PaymentPage({ cart, onClear }) {
             <div className="summary-row" key={index}>
 
               <span>
-                {item.product_name} × {item.quantity}
+                {item.name} × {item.quantity}
               </span>
 
               <span>

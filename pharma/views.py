@@ -68,8 +68,8 @@ class OrderCreate(APIView):
 
                 OrderItem.objects.create(
                     order=order,
-                    product=product,
-                    product_name=product.name,
+                   product=product,
+                    
                     unit_price=product.price,
                     quantity=qty,
                 )
@@ -145,7 +145,7 @@ class OrderPay(APIView):
                     return Response(
                         {
                             "error": (
-                                f"{item.product_name} non è più "
+                                f"{item.name} non è più "
                                 "disponibile nella quantità richiesta."
                             )
                         },
