@@ -106,10 +106,29 @@ useEffect(() => {
     
     <div className="container">
       <title>Pharma</title>
-      <header className="header">
-        <Link to="/" className="logo">Farmacia</Link>
-        <Link to="/cart" className="cart-link">Carrello ({cartCount})</Link>
+      
+      <header className="navbar">
+
+        {/* Logo */}
+        <Link to="/" className="navbar-logo">
+          <span className="logo-icon">✚</span>
+          <span>Pharma</span>
+        </Link>
+
+        {/* Carrello */}
+        <Link to="/cart" className="navbar-cart">
+
+          <span>🛒</span>
+          <span>Carrello</span>
+
+          <span className="cart-count">
+            {cartCount}
+          </span>
+
+        </Link>
+
       </header>
+
 
       <Routes>
         <Route
