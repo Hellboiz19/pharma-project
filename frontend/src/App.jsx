@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link, useLocation} from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import CartPage from "./pages/CartPage";
 import ProductsPage from "./pages/ProductsPage";
 import PaymentPage from "./pages/PaymentPage";
@@ -70,6 +73,7 @@ useEffect(() => {
         },
       ];
     });
+    toast.success("Prodotto aggiunto al carrello!");
   };
 
   const increaseQuantity = (productID) => {
@@ -105,6 +109,13 @@ useEffect(() => {
   return (
     
     <div className="container">
+
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        theme="colored"
+      />
+      
       <title>Pharma</title>
       
       <header className="navbar">
