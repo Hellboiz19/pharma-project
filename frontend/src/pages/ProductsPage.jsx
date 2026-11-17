@@ -72,15 +72,7 @@ function ProductsPage({ products, categories, cart, onAdd }) {
 
               <h3>{p.name}</h3>
 
-              <p>{p.desc}</p>
-
               <p className="price">{p.price} €</p>
-
-              <p>
-                {p.quantity > 0
-                  ? `Disponibili: ${p.quantity} unità`
-                  : "Prodotto esaurito"}
-              </p>
 
               <button
                 className="btn"
