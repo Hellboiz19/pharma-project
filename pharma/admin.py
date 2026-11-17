@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html, format_html_join
 
-from .models import Product, Order, OrderItem
+from .models import Product, Order, OrderItem, Category
 
 
 @admin.register(Product)
@@ -10,6 +10,11 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     list_filter = ["quantity"]
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "description")
+    search_fields = ("name",)
+    
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem

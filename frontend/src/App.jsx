@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from "react";
-import { Routes, Route, Link, useLocation} from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -8,10 +9,11 @@ import ProductsPage from "./pages/ProductsPage";
 import PaymentPage from "./pages/PaymentPage";
 import "./App.css";
 
-
 function App() {
   const location = useLocation();
+
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const [cart, setCart] = useState(() => {
     try {
@@ -23,37 +25,65 @@ function App() {
   });
 
   const refreshProducts = async () => {
-  try {
-    const res = await fetch("http://127.0.0.1:8000/api/products/");
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/products/");
 
-    if (!res.ok) {
-      throw new Error("Errore nel caricamento dei prodotti");
+      if (!res.ok) {
+        throw new Error("Errore nel caricamento dei prodotti");
+      }
+
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Errore prodotti:", error);
+      toast.error("Impossibile caricare i prodotti");
     }
+  };
 
-    const data = await res.json();
-    setProducts(data);
+  const refreshCategories = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/categories/");
 
-  } catch (error) {
-    console.error("Errore:", error);
-  }
-};
+      if (!res.ok) {
+        throw new Error("Errore nel caricamento delle categorie");
+      }
 
-useEffect(() => {
-  if (location.pathname === "/") {
-    refreshProducts();
-  }
-}, [location.pathname]);
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Errore categorie:", error);
+      toast.error("Impossibile caricare le categorie");
+    }
+  };
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      refreshProducts();
+      refreshCategories();
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (product) => {
+    if (product.quantity <= 0) {
+      toast.warning("Prodotto esaurito");
+      return;
+    }
+
     setCart((prev) => {
-      const existing = prev.find((item) => item.productID === product.productID);
+      const existing = prev.find(
+        (item) => item.productID === product.productID
+      );
 
       if (existing) {
-        if (existing.quantity >= product.quantity) return prev;
+        if (existing.quantity >= product.quantity) {
+          toast.warning("Hai raggiunto la quantità massima disponibile");
+          return prev;
+        }
+
         return prev.map((item) =>
           item.productID === product.productID
             ? { ...item, quantity: item.quantity + 1 }
@@ -73,6 +103,7 @@ useEffect(() => {
         },
       ];
     });
+
     toast.success("Prodotto aggiunto al carrello!");
   };
 
@@ -99,55 +130,52 @@ useEffect(() => {
   };
 
   const removeFromCart = (productID) => {
-    setCart((prev) => prev.filter((item) => item.productID !== productID));
+    setCart((prev) =>
+      prev.filter((item) => item.productID !== productID)
+    );
   };
 
   const clearCart = () => setCart([]);
 
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = cart.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   return (
-    
     <div className="container">
-
       <ToastContainer
         position="top-right"
         autoClose={2000}
         theme="colored"
       />
-      
-      <title>Pharma</title>
-      
-      <header className="navbar">
 
-        {/* Logo */}
+      <header className="navbar">
         <Link to="/" className="navbar-logo">
           <span className="logo-icon">✚</span>
           <span>Pharma</span>
         </Link>
 
-        {/* Carrello */}
         <Link to="/cart" className="navbar-cart">
-
           <span>🛒</span>
           <span>Carrello</span>
-
-          <span className="cart-count">
-            {cartCount}
-          </span>
-
+          <span className="cart-count">{cartCount}</span>
         </Link>
-
       </header>
-
 
       <Routes>
         <Route
           path="/"
           element={
-            <ProductsPage products={products} cart={cart} onAdd={addToCart} />
+            <ProductsPage
+              products={products}
+              categories={categories}
+              cart={cart}
+              onAdd={addToCart}
+            />
           }
         />
+
         <Route
           path="/cart"
           element={
@@ -160,9 +188,15 @@ useEffect(() => {
             />
           }
         />
+
         <Route
           path="/payment"
-          element={<PaymentPage cart={cart} onClear={clearCart} />}
+          element={
+            <PaymentPage
+              cart={cart}
+              onClear={clearCart}
+            />
+          }
         />
       </Routes>
     </div>

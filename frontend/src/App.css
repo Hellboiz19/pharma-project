@@ -283,3 +283,36 @@
   }
 
 }
+
+
+/* FILTRI DEL CATALOGO */
+
+.catalog-filters {
+  display: flex;
+  gap: 15px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+
+.catalog-filters input,
+.catalog-filters select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  background-color: white;
+}
+
+.catalog-filters input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.catalog-filters select {
+  min-width: 220px;
+}
+
+.results-count {
+  margin-bottom: 20px;
+  color: #555;
+}

@@ -1,7 +1,14 @@
 
 from django.db import models
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+            return self.name
+
+    
 class Product(models.Model):
 
     productID = models.AutoField(primary_key=True)
@@ -12,13 +19,19 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     expiry_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to="", blank=True, null=True)
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null = True,
+        blank=True,
+        related_name="products"
+    )
 
     def __str__(self):
         return self.name
 
     class Meta:
         ordering = ["name"]
-
 
 class Order(models.Model):
 

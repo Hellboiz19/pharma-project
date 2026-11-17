@@ -9,9 +9,11 @@ from django.utils import timezone
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 
-from .models import Product, Order, OrderItem
+from .models import Product, Order, OrderItem,Category
 from .serializers import (
+    CategorySerializer,
     ProductSerializer,
     OrderCreateSerializer,
     OrderSerializer,
@@ -22,6 +24,16 @@ class ProductList(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+@api_view(["GET"])
+def CategoryList(request):
+    categories = Category.objects.all().order_by("name")
+
+    serializer = CategorySerializer(
+        categories,
+        many=True
+    )
+
+    return Response(serializer.data)
 
 class OrderCreate(APIView):
     def post(self, request):
