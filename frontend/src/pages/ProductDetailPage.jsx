@@ -5,8 +5,21 @@ function ProductDetailPage({ products, onAdd }) {
   const { productID } = useParams();
 
   const product = products.find(
-    (p) => p.productID === p.productID
+    (p) => String(p.productID) === String(productID)
   );
+
+  const recommendedProducts = [
+    ...products.filter(
+      (p) =>
+        p.productID !== product.productID &&
+        String(p.category) === String(product.category)
+    ),
+    ...products.filter(
+      (p) =>
+        p.productID !== product.productID &&
+        String(p.category) !== String(product.category)
+    ),
+  ].slice(0, 4);
 
   if (!product) {
     return (
@@ -54,13 +67,9 @@ function ProductDetailPage({ products, onAdd }) {
             <h3>Allergie e avvertenze</h3>
             <p>{product.allergies_desc || "Informazioni non disponibili."}</p>
           </div>
-
-          <div className="detail-stock">
-            {product.quantity > 0
-              ? `Disponibili: ${product.quantity} pezzi`
-              : "Prodotto esaurito"}
-          </div>
-
+          <br>
+          
+          </br>
           <button
             className="detail-add-button"
             onClick={() => onAdd(product)}
@@ -69,10 +78,46 @@ function ProductDetailPage({ products, onAdd }) {
             Aggiungi al carrello
           </button>
         </div>
+        </div>
+
+        {recommendedProducts.length > 0 && (
+          <section className="recommended-section">
+            <h2>Potrebbe interessarti anche</h2>
+
+            <div className="recommended-grid">
+              {recommendedProducts.map((p) => (
+                <div className="recommended-card" key={p.productID}>
+                  <Link to={`/product/${p.productID}`}>
+                    {p.image && (
+                      <img
+                        src={
+                          p.image.startsWith("http")
+                            ? p.image
+                            : `http://127.0.0.1:8000${p.image}`
+                        }
+                        alt={p.name}
+                      />
+                    )}
+                  </Link>
+
+                  <h3>{p.name}</h3>
+
+                  <p>€ {Number(p.price).toFixed(2)}</p>
+
+                  <Link
+                    to={`/product/${p.productID}`}
+                    className="recommended-link"
+                  >
+                    Scopri prodotto
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
-    </div>
-  );
-}
+    );
+  }
 
 export default ProductDetailPage;
 

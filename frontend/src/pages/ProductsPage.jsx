@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./ProductsPage.css";
 
 function ProductsPage({ products, categories, cart, onAdd }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const productsPerPage = 6;
 
   const filteredProducts = products.filter((p) => {
     const matchesCategory =
@@ -17,6 +20,21 @@ function ProductsPage({ products, categories, cart, onAdd }) {
 
     return matchesCategory && matchesSearch;
   });
+
+  const totalPages = Math.ceil(
+    filteredProducts.length / productsPerPage
+  );
+
+  const startIndex = (currentPage - 1) * productsPerPage;
+
+  const currentProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + productsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
 
   return (
     <div>
@@ -49,7 +67,7 @@ function ProductsPage({ products, categories, cart, onAdd }) {
       </p>
 
       <div className="grid">
-        {filteredProducts.map((p) => {
+        {currentProducts.map((p) => {
           const item = cart.find(
             (i) => i.productID === p.productID
           );
@@ -69,16 +87,14 @@ function ProductsPage({ products, categories, cart, onAdd }) {
           return (
             <div className="card" key={p.productID}>
               <Link
-                to={`/product/${p.name}`}
+                to={`/product/${p.productID}`}
                 className="product-link"
               >
                 {p.image && (
                   <img src={p.image} alt={p.name} />
-                )}
-
-                
+                )}          
               </Link>
-              
+
               <h3>{p.name}</h3>
 
               <p className="price">{p.price} €</p>
@@ -97,6 +113,36 @@ function ProductsPage({ products, categories, cart, onAdd }) {
 
       {filteredProducts.length === 0 && (
         <p>Nessun prodotto trovato.</p>
+      )}
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            disabled={currentPage === 1}
+          >
+            Precedente
+          </button>
+
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              className={
+                currentPage === index + 1 ? "active-page" : ""
+              }
+              onClick={() => setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Successiva
+          </button>
+        </div>
       )}
     </div>
   );

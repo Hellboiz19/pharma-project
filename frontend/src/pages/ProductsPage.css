@@ -56,3 +56,31 @@
   margin-bottom: 20px;
   color: #555;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 35px 0;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button.active-page {
+  background: #092a99;
+  color: white;
+  border-color: #092a99;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
