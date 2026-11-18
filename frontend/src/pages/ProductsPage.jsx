@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import "./ProductsPage.css";
 
 function ProductsPage({ products, categories, cart, onAdd }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -66,10 +68,17 @@ function ProductsPage({ products, categories, cart, onAdd }) {
 
           return (
             <div className="card" key={p.productID}>
-              {p.image && (
-                <img src={p.image} alt={p.name} />
-              )}
+              <Link
+                to={`/product/${p.name}`}
+                className="product-link"
+              >
+                {p.image && (
+                  <img src={p.image} alt={p.name} />
+                )}
 
+                
+              </Link>
+              
               <h3>{p.name}</h3>
 
               <p className="price">{p.price} €</p>

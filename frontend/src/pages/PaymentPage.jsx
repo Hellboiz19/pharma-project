@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import "./PaymentPage.css";
 
 const API_URL = "http://127.0.0.1:8000/api";
 

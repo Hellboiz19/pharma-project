@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import "./CartPage.css";
 
 function CartPage({ cart, onIncrease, onDecrease, onRemove, onClear }) {
   const total = cart.reduce(

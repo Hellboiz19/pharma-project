@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import CartPage from "./pages/CartPage";
 import ProductsPage from "./pages/ProductsPage";
 import PaymentPage from "./pages/PaymentPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+
 import "./App.css";
 
 function App() {
@@ -56,17 +58,26 @@ function App() {
     }
   };
 
+  // Caricamento dati in base alla pagina visitata
   useEffect(() => {
-    if (location.pathname === "/") {
+    const isHomePage = location.pathname === "/";
+    const isProductDetail = location.pathname.startsWith("/product/");
+
+    if (isHomePage || isProductDetail) {
       refreshProducts();
+    }
+
+    if (isHomePage) {
       refreshCategories();
     }
   }, [location.pathname]);
 
+  // Salvataggio carrello nel localStorage
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  // Aggiunta prodotto al carrello
   const addToCart = (product) => {
     if (product.quantity <= 0) {
       toast.warning("Prodotto esaurito");
@@ -107,6 +118,7 @@ function App() {
     toast.success("Prodotto aggiunto al carrello!");
   };
 
+  // Aumento quantità
   const increaseQuantity = (productID) => {
     setCart((prev) =>
       prev.map((item) =>
@@ -117,6 +129,7 @@ function App() {
     );
   };
 
+  // Diminuzione quantità
   const decreaseQuantity = (productID) => {
     setCart((prev) =>
       prev
@@ -129,12 +142,14 @@ function App() {
     );
   };
 
+  // Rimozione prodotto
   const removeFromCart = (productID) => {
     setCart((prev) =>
       prev.filter((item) => item.productID !== productID)
     );
   };
 
+  // Svuotamento carrello
   const clearCart = () => setCart([]);
 
   const cartCount = cart.reduce(
@@ -164,6 +179,7 @@ function App() {
       </header>
 
       <Routes>
+        {/* Catalogo prodotti */}
         <Route
           path="/"
           element={
@@ -176,6 +192,18 @@ function App() {
           }
         />
 
+        {/* Dettaglio prodotto */}
+        <Route
+          path="/product/:productID"
+          element={
+            <ProductDetailPage
+              products={products}
+              onAdd={addToCart}
+            />
+          }
+        />
+
+        {/* Carrello */}
         <Route
           path="/cart"
           element={
@@ -189,6 +217,7 @@ function App() {
           }
         />
 
+        {/* Pagamento */}
         <Route
           path="/payment"
           element={
