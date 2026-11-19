@@ -2,14 +2,30 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import { API_URL } from "./config";
 import CartPage from "./pages/CartPage";
 import ProductsPage from "./pages/ProductsPage";
 import PaymentPage from "./pages/PaymentPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 
 import "./App.css";
+
+async function loadData(path, setter, errorMessage) {
+  try {
+    const response = await fetch(`${API_URL}${path}`);
+
+    if (!response.ok) {
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    setter(data);
+
+  } catch (error) {
+    console.error(error);
+    toast.error(errorMessage);
+  }
+}
 
 function App() {
   const location = useLocation();
@@ -26,49 +42,25 @@ function App() {
     }
   });
 
-  const refreshProducts = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/products/");
-
-      if (!res.ok) {
-        throw new Error("Errore nel caricamento dei prodotti");
-      }
-
-      const data = await res.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Errore prodotti:", error);
-      toast.error("Impossibile caricare i prodotti");
-    }
-  };
-
-  const refreshCategories = async () => {
-    try {
-      const res = await fetch("http://127.0.0.1:8000/api/categories/");
-
-      if (!res.ok) {
-        throw new Error("Errore nel caricamento delle categorie");
-      }
-
-      const data = await res.json();
-      setCategories(data);
-    } catch (error) {
-      console.error("Errore categorie:", error);
-      toast.error("Impossibile caricare le categorie");
-    }
-  };
-
   // Caricamento dati in base alla pagina visitata
   useEffect(() => {
     const isHomePage = location.pathname === "/";
     const isProductDetail = location.pathname.startsWith("/product/");
 
     if (isHomePage || isProductDetail) {
-      refreshProducts();
+      loadData(
+        "/products/",
+        setProducts,
+        "Impossibile caricare i prodotti"
+      );
     }
 
     if (isHomePage) {
-      refreshCategories();
+      loadData(
+        "/categories/",
+        setCategories,
+        "Impossibile caricare le categorie"
+      );
     }
   }, [location.pathname]);
 

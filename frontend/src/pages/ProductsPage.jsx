@@ -86,10 +86,7 @@ function ProductsPage({ products, categories, cart, onAdd }) {
 
           return (
             <div className="card" key={p.productID}>
-              <Link
-                to={`/product/${p.productID}`}
-                className="product-link"
-              >
+              <Link to={`/product/${p.productID}`}>
                 {p.image && (
                   <img src={p.image} alt={p.name} />
                 )}          

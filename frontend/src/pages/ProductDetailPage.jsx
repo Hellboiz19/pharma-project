@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { BACKEND_URL } from "../config";
 import "./ProductDetailPage.css";
 
 function ProductDetailPage({ products, onAdd }) {
@@ -43,7 +44,7 @@ function ProductDetailPage({ products, onAdd }) {
               src={
                 product.image.startsWith("http")
                   ? product.image
-                  : `http://127.0.0.1:8000${product.image}`
+                  : `${BACKEND_URL}${product.image}`
               }
               alt={product.name}
             />
@@ -93,7 +94,7 @@ function ProductDetailPage({ products, onAdd }) {
                         src={
                           p.image.startsWith("http")
                             ? p.image
-                            : `http://127.0.0.1:8000${p.image}`
+                            : `${BACKEND_URL}${p.image}`
                         }
                         alt={p.name}
                       />

@@ -1,11 +1,9 @@
 import { Link } from "react-router-dom";
+import { getCartTotal, formatPrice } from "../utils";
 import "./CartPage.css";
 
 function CartPage({ cart, onIncrease, onDecrease, onRemove, onClear }) {
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = getCartTotal(cart);
 
   if (cart.length === 0) {
     return (
@@ -29,7 +27,7 @@ function CartPage({ cart, onIncrease, onDecrease, onRemove, onClear }) {
 
           <div className="cart-info">
             <h3>{item.name}</h3>
-            <p>{item.price.toFixed(2)} € l'uno</p>
+            <p>{formatPrice(item.price)} l'uno</p>
           </div>
 
           <div className="cart-qty">
@@ -44,7 +42,7 @@ function CartPage({ cart, onIncrease, onDecrease, onRemove, onClear }) {
           </div>
 
           <p className="cart-subtotal">
-            {(item.price * item.quantity).toFixed(2)} €
+            {formatPrice(item.price * item.quantity)}
           </p>
 
           <button className="remove" onClick={() => onRemove(item.productID)}>
@@ -53,7 +51,7 @@ function CartPage({ cart, onIncrease, onDecrease, onRemove, onClear }) {
         </div>
       ))}
 
-      <h2 className="total">Totale: {total.toFixed(2)} €</h2>
+      <h2 className="total">Totale: {formatPrice(total)}</h2>
 
       <div className="cart-actions">
         <button className="btn secondary" onClick={onClear}>

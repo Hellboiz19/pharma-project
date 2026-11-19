@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { API_URL } from "../config";
+import { getCartTotal, formatPrice } from "../utils";
 import "./PaymentPage.css";
-
-const API_URL = "http://127.0.0.1:8000/api";
 
 function readError(data) {
   if (data.error) return data.error;
@@ -30,10 +30,7 @@ function PaymentPage({ cart, onClear }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = getCartTotal(cart);
 
   // Gestione dei campi del form
   const handleChange = (e) => {
@@ -132,7 +129,7 @@ function PaymentPage({ cart, onClear }) {
       // Svuoto il carrello
       onClear();
 
-    } catch (error) {
+    } catch {
 
       setError(
         "Impossibile contattare il server. Controlla che Django sia acceso."
@@ -177,7 +174,7 @@ function PaymentPage({ cart, onClear }) {
               </span>
 
               <span>
-                {(Number(item.unit_price) * item.quantity).toFixed(2)} €
+                {formatPrice(Number(item.unit_price) * item.quantity)}
               </span>
 
             </div>
@@ -189,7 +186,7 @@ function PaymentPage({ cart, onClear }) {
             <span>Totale pagato</span>
 
             <span>
-              {Number(paidOrder.total).toFixed(2)} €
+              {formatPrice(paidOrder.total)}
             </span>
 
           </h3>
@@ -341,7 +338,7 @@ function PaymentPage({ cart, onClear }) {
           >
             {loading
               ? "Elaborazione..."
-              : `Paga ${total.toFixed(2)} €`}
+              : `Paga ${formatPrice(total)}`}
           </button>
 
         </form>
@@ -359,7 +356,7 @@ function PaymentPage({ cart, onClear }) {
               </span>
 
               <span>
-                {(item.price * item.quantity).toFixed(2)} €
+                {formatPrice(item.price * item.quantity)}
               </span>
 
             </div>
@@ -370,7 +367,7 @@ function PaymentPage({ cart, onClear }) {
 
             <span>Totale</span>
 
-            <span>{total.toFixed(2)} €</span>
+            <span>{formatPrice(total)}</span>
 
           </h3>
 
