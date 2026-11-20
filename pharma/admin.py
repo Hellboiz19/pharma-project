@@ -36,6 +36,9 @@ class OrderItemInline(admin.TabularInline):
 
     @admin.display(description="Totale")
     def subtotal(self, obj):
+        if obj.unit_price is None or obj.quantity is None:
+            return "—"
+    
         return f"{obj.unit_price * obj.quantity:.2f} €"
 
 @admin.action(description="Conferma incasso contanti e aggiorna scorte")

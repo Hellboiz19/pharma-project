@@ -35,7 +35,7 @@ class OrderCreate(APIView):
 
         delivery_method = data.get("delivery_method", "pickup")
         delivery_address = data.get("delivery_address", "").strip()
-        payment_method = data["payement_method"]
+        payment_method = data["payment_method"]
 
         if payment_method == "cash" and delivery_method != "pickup":
             return Response(

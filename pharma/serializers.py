@@ -61,13 +61,15 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer_name",
             "customer_email",
             "customer_phone",
-            "customer_method"
+            "delivery_method",
             "delivery_address",
             "shipping_cost",
-            "payement_method",
+            "payment_method",
             "status",
             "total",
             "transaction_id",
             "created_at",
             "items",
         ]
+
+        
