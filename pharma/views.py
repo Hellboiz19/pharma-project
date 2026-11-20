@@ -33,54 +33,86 @@ class OrderCreate(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
+        delivery_method = data.get("delivery_method", "pickup")
+        delivery_address = data.get("delivery_address", "").strip()
+        payment_method = data["payement_method"]
+
+        if payment_method == "cash" and delivery_method != "pickup":
+            return Response(
+                {
+                    "error": (
+                        "Il pagamento in contanti è disponibile "
+                        "solo con il ritiro in farmacia."
+                    )
+                },
+                status=400
+            )
+
+        if delivery_method == "home" and not delivery_address:
+            return Response(
+                {"error": "Inserisci l'indirizzo di spedizione."},
+                status=400
+            )
+
+        shipping_cost = (
+            Decimal("5.00")
+            if delivery_method == "home"
+            else Decimal("0.00")
+        )
+
         quantities = {}
 
         for row in data["items"]:
             pid = row["productID"]
             quantities[pid] = quantities.get(pid, 0) + row["quantity"]
 
-        products = Product.objects.in_bulk(list(quantities.keys()))
+        with transaction.atomic():    
 
-        errors = []
+            products = Product.objects.in_bulk(list(quantities.keys()))
 
-        for pid, qty in quantities.items():
-            product = products.get(pid)
+            errors = []
 
-            if product is None:
-                errors.append(f"Prodotto {pid} non trovato.")
+            for pid, qty in quantities.items():
+                product = products.get(pid)
 
-            elif qty > product.quantity:
-                errors.append(
-                    f"{product.name}: disponibili solo "
-                    f"{product.quantity} pezzi."
-                )
+                if product is None:
+                    errors.append(f"Prodotto {pid} non trovato.")
 
-        if errors:
-            return Response({"errors": errors}, status=400)
+                elif qty > product.quantity:
+                    errors.append(
+                        f"{product.name}: disponibili solo "
+                        f"{product.quantity} pezzi."
+                    )
 
-        with transaction.atomic():
+            if errors:
+                return Response({"errors": errors}, status=400)
+
+        
             order = Order.objects.create(
                 customer_name=data["customer_name"],
                 customer_email=data["customer_email"],
                 customer_phone=data["customer_phone"],
+                delivery_method=delivery_method,
+                delivery_address=(delivery_address if delivery_method == "home" else ""),
+                shipping_cost=shipping_cost,
+                payment_method=("contanti" if payment_method == "cash" else ""),
             )
 
-            total = Decimal("0")
+            total = Decimal("0.00")
 
             for pid, qty in quantities.items():
                 product = products[pid]
 
                 OrderItem.objects.create(
                     order=order,
-                   product=product,
-                    
+                    product=product, 
                     unit_price=product.price,
                     quantity=qty,
                 )
 
                 total += product.price * qty
 
-            order.total = total
+            order.total = total + shipping_cost
             order.save()
 
         return Response(
@@ -133,6 +165,12 @@ class OrderPay(APIView):
             if order.status == "paid":
                 return Response(
                     {"error": "Questo ordine è già stato pagato."},
+                    status=400
+                )
+
+            if order.payment_method == "contanti":
+                return Response(
+                    {"error": "Questo ordine è previsto per pagamento in contanti."},
                     status=400
                 )
 

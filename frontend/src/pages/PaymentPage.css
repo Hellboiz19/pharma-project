@@ -68,3 +68,41 @@
   padding: 6px 0;
   margin: 0;
 }
+
+.delivery-options,
+.payment-method-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form .delivery-option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.form .delivery-option input[type="radio"] {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.delivery-address {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.delivery-address input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}

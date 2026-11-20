@@ -29,8 +29,14 @@ function PaymentPage({ cart, onClear }) {
   const [paidOrder, setPaidOrder] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState("pickup");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [cashOrder, setCashOrder] = useState(null);
 
   const total = getCartTotal(cart);
+  const shippingCost = deliveryMethod === "home" ? 5 : 0;
+  const orderTotal = total + shippingCost;
 
   // Gestione dei campi del form
   const handleChange = (e) => {
@@ -82,6 +88,12 @@ function PaymentPage({ cart, onClear }) {
             customer_email: form.email,
             customer_phone: form.phone,
 
+            delivery_method: deliveryMethod,
+            delivery_address:
+              deliveryMethod === "home" ? deliveryAddress : "",
+
+            payment_method: paymentMethod,
+
             items: cart.map((item) => ({
               productID: item.productID,
               quantity: item.quantity,
@@ -98,6 +110,12 @@ function PaymentPage({ cart, onClear }) {
 
         id = orderData.id;
         setOrderId(id);
+
+        if (paymentMethod === "cash") {
+          setCashOrder(orderData);
+          onClear();
+          return;
+        }
       }
 
       // Invio i dati della carta al backend
@@ -141,6 +159,54 @@ function PaymentPage({ cart, onClear }) {
 
     }
   };
+
+  // Ordine creato con pagamento in contanti
+  if (cashOrder) {
+    return (
+      <div>
+        <h1>Ordine ricevuto!</h1>
+
+        <p>
+          Grazie {cashOrder.customer_name}!
+        </p>
+
+        <p>
+          Il tuo ordine n. <strong>{cashOrder.id}</strong> è stato creato.
+        </p>
+
+        <p>
+          Pagamento: <strong>Contanti al ritiro in farmacia</strong>
+        </p>
+
+        <p>
+          Stato ordine: <strong>{cashOrder.status}</strong>
+        </p>
+
+        <div className="summary">
+          {cashOrder.items.map((item, index) => (
+            <div className="summary-row" key={index}>
+              <span>
+                {item.name} × {item.quantity}
+              </span>
+
+              <span>
+                {formatPrice(Number(item.unit_price) * item.quantity)}
+              </span>
+            </div>
+          ))}
+
+          <h3 className="summary-row">
+            <span>Totale da pagare al ritiro</span>
+            <span>{formatPrice(cashOrder.total)}</span>
+          </h3>
+        </div>
+
+        <Link to="/" className="btn">
+          Torna ai prodotti
+        </Link>
+      </div>
+    );
+  }
 
   // Schermata di pagamento riuscito
   if (paidOrder) {
@@ -266,66 +332,154 @@ function PaymentPage({ cart, onClear }) {
             />
           </label>
 
-          <h2>Carta di pagamento (simulata)</h2>
+          <h2>Modalità di consegna</h2>
 
-          <p className="hint">
-            Inserisci qualsiasi numero di carta di 16 cifre,
-            una scadenza in formato MM/AA e un CVV di 3 cifre.
-            Il pagamento è simulato.
-          </p>
+          <div className="delivery-options">
 
-          <label>
-            Numero di carta
-
-            <input
-              type="text"
-              name="cardNumber"
-              inputMode="numeric"
-              placeholder="1234567890123456"
-              maxLength={16}
-              minLength={16}
-              pattern="[0-9]{16}"
-              value={form.cardNumber}
-              onChange={handleChange}
-              required
-            />
-          </label>
-
-          <div className="form-row">
-
-            <label>
-              Scadenza (MM/AA)
-
+            <label className="delivery-option">
               <input
-                type="text"
-                name="expiry"
-                placeholder="12/30"
-                maxLength={5}
-                pattern="(0[1-9]|1[0-2])/[0-9]{2}"
-                value={form.expiry}
-                onChange={handleChange}
-                required
+                type="radio"
+                name="deliveryMethod"
+                checked={deliveryMethod === "pickup"}
+                onChange={() => setDeliveryMethod("pickup")}
+                disabled={orderId !== null}
               />
+
+              Ritiro in farmacia – Gratuito
             </label>
 
-            <label>
-              CVV
-
+            <label className="delivery-option">
               <input
-                type="text"
-                name="cvv"
-                inputMode="numeric"
-                placeholder="123"
-                maxLength={3}
-                minLength={3}
-                pattern="[0-9]{3}"
-                value={form.cvv}
-                onChange={handleChange}
-                required
+                type="radio"
+                name="deliveryMethod"
+                checked={deliveryMethod === "home"}
+                onChange={() => {
+                  setDeliveryMethod("home");
+                  setPaymentMethod("card");
+                }}
+                disabled={orderId !== null}
               />
+
+              Spedizione a domicilio – 5,00 €
             </label>
 
           </div>
+
+          {deliveryMethod === "home" && (
+            <label className="delivery-address">
+              Indirizzo di spedizione
+
+              <input
+                type="text"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                placeholder="Via, numero civico, città"
+                required
+                disabled={orderId !== null}
+              />
+            </label>
+          )}
+
+          <h2>Metodo di pagamento</h2>
+
+          <div className="payment-method-options">
+
+            <label className="delivery-option">
+              <input
+                type="radio"
+                name="paymentMethod"
+                checked={paymentMethod === "card"}
+                onChange={() => setPaymentMethod("card")}
+                disabled={orderId !== null}
+              />
+
+              Carta di pagamento (simulata)
+            </label>
+
+            {deliveryMethod === "pickup" && (
+              <label className="delivery-option">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "cash"}
+                  onChange={() => setPaymentMethod("cash")}
+                  disabled={orderId !== null}
+                />
+
+                Contanti al ritiro in farmacia
+              </label>
+            )}
+
+          </div>
+
+            
+          {paymentMethod === "card" ? (
+          <>
+            <h2>Carta di pagamento (simulata)</h2>
+
+            <p className="hint">
+              Inserisci qualsiasi numero di carta di 16 cifre,
+              una scadenza in formato MM/AA e un CVV di 3 cifre.
+              Il pagamento è simulato.
+            </p>
+
+            <label>
+              Numero di carta
+
+              <input
+                type="text"
+                name="cardNumber"
+                inputMode="numeric"
+                placeholder="1234567890123456"
+                maxLength={16}
+                minLength={16}
+                pattern="[0-9]{16}"
+                value={form.cardNumber}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <div className="form-row">
+              <label>
+                Scadenza (MM/AA)
+
+                <input
+                  type="text"
+                  name="expiry"
+                  placeholder="12/30"
+                  maxLength={5}
+                  pattern="(0[1-9]|1[0-2])/[0-9]{2}"
+                  value={form.expiry}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+
+              <label>
+                CVV
+
+                <input
+                  type="text"
+                  name="cvv"
+                  inputMode="numeric"
+                  placeholder="123"
+                  maxLength={3}
+                  minLength={3}
+                  pattern="[0-9]{3}"
+                  value={form.cvv}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+            </div>
+          </>
+        ) : (
+          <p className="hint">
+            Pagherai in contanti direttamente in farmacia
+            quando ritirerai il tuo ordine.
+          </p>
+        )}
 
           {error && (
             <p className="error">{error}</p>
@@ -338,7 +492,9 @@ function PaymentPage({ cart, onClear }) {
           >
             {loading
               ? "Elaborazione..."
-              : `Paga ${formatPrice(total)}`}
+              : paymentMethod == "cash"
+              ? "Conferma ordine"
+              : `Paga ${formatPrice(orderTotal)}`}
           </button>
 
         </form>
@@ -362,13 +518,20 @@ function PaymentPage({ cart, onClear }) {
             </div>
 
           ))}
+          
+          <div className="summary-row">
+            <span>Prodotti</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+    
+          <div className="summary-row">
+            <span>Spedizione</span>
+            <span>{formatPrice(shippingCost)}</span>
+          </div>
 
           <h3 className="summary-row">
-
             <span>Totale</span>
-
-            <span>{formatPrice(total)}</span>
-
+            <span>{formatPrice(orderTotal)}</span>
           </h3>
 
           <Link to="/cart">

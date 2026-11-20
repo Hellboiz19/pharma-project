@@ -40,9 +40,28 @@ class Order(models.Model):
         ("paid", "Pagato"),
     ]
 
+    DELIVERY_CHOICES = [
+    ("home", "Spedizione a domicilio"),
+    ("pickup", "Ritiro in farmacia"),
+    ]
+
     customer_name = models.CharField(max_length=255)
     customer_email = models.EmailField()
     customer_phone = models.CharField(max_length=20)
+
+    delivery_method = models.CharField(
+    max_length=10,
+    choices=DELIVERY_CHOICES,
+    default="pickup"
+    )
+
+    delivery_address = models.TextField(blank=True)
+
+    shipping_cost = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0
+    )
 
     status = models.CharField(
         max_length=20,

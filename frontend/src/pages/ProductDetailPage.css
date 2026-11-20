@@ -151,3 +151,39 @@
     grid-template-columns: 1fr;
   }
 }
+
+.delivery-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.delivery-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.delivery-option input {
+  width: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.delivery-address {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.delivery-address input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}

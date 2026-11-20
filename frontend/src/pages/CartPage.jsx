@@ -58,7 +58,9 @@ function CartPage({ cart, onIncrease, onDecrease, onRemove, onClear }) {
           Svuota carrello
         </button>
         <Link to="/" className="btn">Continua gli acquisti</Link>
-        <Link to="/payment" className="btn">Procedi al pagamento</Link>
+        <Link to="/payment" className="btn">
+          Procedi al checkout
+        </Link>
       </div>
     </div>
   );

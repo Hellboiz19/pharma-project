@@ -21,6 +21,23 @@ class OrderCreateSerializer(serializers.Serializer):
     customer_name = serializers.CharField(max_length=255)
     customer_email = serializers.EmailField()
     customer_phone = serializers.CharField(max_length=20)
+    delivery_method = serializers.ChoiceField(
+        choices=Order.DELIVERY_CHOICES,
+        default="pickup"
+    )
+
+    delivery_address = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+    payment_method = serializers.ChoiceField(
+        choices=[
+            ("card", "Carta"),
+            ("cash", "Contanti"),
+        ],
+        default="card"
+    )
+
     items = OrderItemInputSerializer(many=True, allow_empty=False)
 
 
@@ -44,6 +61,10 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer_name",
             "customer_email",
             "customer_phone",
+            "customer_method"
+            "delivery_address",
+            "shipping_cost",
+            "payement_method",
             "status",
             "total",
             "transaction_id",
